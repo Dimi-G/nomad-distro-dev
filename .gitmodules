@@ -10,9 +10,6 @@
 [submodule "packages/workflow-parsers"]
 	path = packages/workflow-parsers
 	url = git@github.com:nomad-coe/workflow-parsers.git
-[submodule "packages/atomistic-parsers"]
-	path = packages/atomistic-parsers
-	url = git@github.com:nomad-coe/atomistic-parsers.git
 [submodule "packages/database-parsers"]
 	path = packages/database-parsers
 	url = git@github.com:nomad-coe/database-parsers.git
