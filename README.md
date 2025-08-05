@@ -117,20 +117,18 @@ these two situations.
 
    There are two ways of adding to these two lists:
 
-   * You can use `uv add` which adds the dependency and the source in `pyproject.toml`
-   and sets up the environment:
-
-     ```bash
-     uv add packages/nomad-measurements
-     ```
-
-   Or if you've added multiple plugins as submodules, you should list them all together.
-
+   a) You can use `uv add` which adds the dependency and the source in `pyproject.toml`
+   and sets up the environment.  
+   Adding multiple plugins should be done in a single command:
    ```bash
    uv add packages/nomad-measurements packages/PLUGIN_B packages/PLUGIN_C
    ```
+   In this example, we're just adding one:
+   ```bash
+   uv add packages/nomad-measurements
+   ```  
  
-   * You can modify the `pyproject.toml` file manually:
+   b) You can modify the `pyproject.toml` file manually:
 
      ```toml
      [project]
@@ -210,10 +208,17 @@ After the initial setup, here’s how to manage your daily development tasks.
 Add the `nomad-docs` repository as a submodule (if you have added it as a submodule already, skip this step):
 
    ```bash
-   git submodule add https://github.com/FAIRmat-NFDI/nomad-docs.git docs
+   git submodule add https://github.com/FAIRmat-NFDI/nomad-docs.git packages/nomad-docs
    ```
 
-Run the docs server:
+Just like adding a new plugin, use `uv` to add `nomad-docs` to the environment:
+   ```bash
+   uv add packages/nomad-docs
+   ```
+
+At this moment, you can commit the changes made to your `nomad-dev-distro`.
+
+Now, everytime you wanna start the docs server, run the following:
    ```bash
    uv run poe docs
    ```
