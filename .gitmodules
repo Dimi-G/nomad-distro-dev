@@ -19,3 +19,6 @@
 [submodule "packages/nomad-tfsc-general"]
 	path = packages/nomad-tfsc-general
 	url = git@github.com:nomad-hzb/nomad-tfsc-general.git
+[submodule "packages/nomad-perovskite-solar-cells-database"]
+	path = packages/nomad-perovskite-solar-cells-database
+	url = https://github.com/FAIRmat-NFDI/nomad-perovskite-solar-cells-database.git
