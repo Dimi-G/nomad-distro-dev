@@ -1,6 +1,7 @@
 [submodule "packages/nomad-FAIR"]
 	path = packages/nomad-FAIR
 	url = https://gitlab.mpcdf.mpg.de/nomad-lab/nomad-FAIR.git
+	branch = develop
 [submodule "packages/electronic-parsers"]
 	path = packages/electronic-parsers
 	url = git@github.com:nomad-coe/electronic-parsers.git
@@ -19,6 +20,15 @@
 [submodule "packages/nomad-tfsc-general"]
 	path = packages/nomad-tfsc-general
 	url = git@github.com:nomad-hzb/nomad-tfsc-general.git
+	branch = main
 [submodule "packages/nomad-perovskite-solar-cells-database"]
 	path = packages/nomad-perovskite-solar-cells-database
 	url = https://github.com/FAIRmat-NFDI/nomad-perovskite-solar-cells-database.git
+[submodule "packages/nomad-baseclasses"]
+	path = packages/nomad-baseclasses
+	url = git@github.com:nomad-hzb/nomad-baseclasses.git
+	branch = main
+[submodule "packages/nomad-hysprint"]
+	path = packages/nomad-hysprint
+	url = git@github.com:nomad-hzb/nomad-hysprint.git
+	branch = main
