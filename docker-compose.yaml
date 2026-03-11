@@ -18,21 +18,6 @@
 #
 
 services:
-  # broker for celery
-  rabbitmq:
-    restart: "no"
-    image: rabbitmq:3.11.5
-    container_name: nomad_rabbitmq
-    environment:
-      - RABBITMQ_ERLANG_COOKIE=SWQOKODSQALRPCLNMEQG
-      - RABBITMQ_DEFAULT_USER=rabbitmq
-      - RABBITMQ_DEFAULT_PASS=rabbitmq
-      - RABBITMQ_DEFAULT_VHOST=/
-    ports:
-      - 5672:5672
-    volumes:
-      - nomad_rabbitmq:/var/lib/rabbitmq
-
   # the search engine
   elastic:
     restart: "no"
@@ -69,15 +54,16 @@ services:
 
   temporal:
     container_name: nomad_temporal
-    image: ghcr.io/fairmat-nfdi/temporal-dev-server:v1.4.0
+    image: temporalio/temporal:1.6.1
+    command: server start-dev --ip 0.0.0.0
     volumes:
       - nomad_temporal:/data
     ports:
       - 7233:7233
-      - 8080:8080
+      - 8080:8233
+
 volumes:
   nomad_mongo:
   nomad_mongo_config:
   nomad_elastic:
-  nomad_rabbitmq:
   nomad_temporal:
