@@ -24,16 +24,16 @@ dependencies = [
   "nomad-external-eln-integrations",
   "nomad-parser-plugins-workflow",
   "eelsdbconverter",
-  "nomad-tfsc-general",
-  #"nomad-hysprint",
+  #"nomad-tfsc-general",
+  "nomad-hysprint",
 ]
 
 [tool.uv.workspace]
 members = [
   "packages/nomad-baseclasses",
   "packages/nomad-FAIR",
-  #"packages/nomad-hysprint",
-  "packages/nomad-tfsc-general",
+  "packages/nomad-hysprint",
+  #"packages/nomad-tfsc-general",
   "packages/nomad-plugins",
   "packages/nomad-perovskite-solar-cells-database",
   #"packages/database-parsers"
@@ -50,8 +50,8 @@ nomad-external-eln-integrations = { git = "https://github.com/FAIRmat-NFDI/nomad
 #nomad-parser-plugins-workflow = { workspace = true }
 #nomad-parser-plugins-database = { workspace = true }
 eelsdbconverter = { git = "https://github.com/nomad-coe/nomad-parser-eelsdb.git", rev = "788eb03dc71ef9b164e2a5ccb9c0209b546f5c38" }
-nomad-tfsc-general = { workspace = true }
-#nomad-hysprint = { workspace = true }
+#nomad-tfsc-general = { workspace = true }
+nomad-hysprint = { workspace = true }
 
 [tool.uv]
 extra-index-url = [
