@@ -19,14 +19,15 @@ The three actively developed plugins are:
 All commands run from the repo root. `uv run poe` is equivalent to `poe` if `poethepoet` is installed globally via `uv tool install poethepoet`.
 
 ```bash
-# Initial setup (installs deps, starts Docker, configures GUI env)
+# Initial setup (starts Docker, creates nomad.yaml if missing; no longer sets up the legacy GUI)
 uv run poe setup
 
-# Start NOMAD API app (development mode)
+# Start NOMAD API app (development mode); also serves the new GUI
 uv run poe start
 
-# Start GUI (yarn dev server)
-uv run poe gui start
+# Legacy GUI only: one-time install, then start the yarn dev server
+uv run poe gui-setup
+uv run poe gui
 
 # Linting (ruff check + format check)
 uv run poe lint
@@ -49,7 +50,26 @@ docker compose up -d
 docker compose down
 ```
 
-NOMAD instance runs at `http://localhost:3000/nomad-oasis/gui`, API at `http://localhost:8000`.
+The new GUI (the `nomad-gui` package) is served by the API at `http://localhost:8000/nomad-oasis/gui/v2/`. The legacy GUI runs at `http://localhost:3000/nomad-oasis/gui` only after `poe gui-setup`.
+
+## Choosing Active Plugins
+
+Which local plugins are active is controlled in two places, and they must agree:
+
+1. Root `pyproject.toml`: the plugin must be listed in `[project] dependencies`, `[tool.uv.workspace] members`, and `[tool.uv.sources]` (`{ workspace = true }`). Commented-out lines mean the plugin is not installed. Run `uv sync` after changing them.
+2. Root `nomad.yaml` (untracked, local): `plugins.entry_points.include` lists the entry points the running server loads. An installed plugin whose entry points are not listed is inactive.
+
+**Parser overlap**: when nomad-hysprint and nomad-tfsc-general are both installed, the hysprint batch parser also matches tfsc-general's Excel test files, so tfsc-general tests fail unless hysprint's entry points are excluded. Run tfsc-general tests with a config that excludes them, for example a temp `nomad.yaml` passed via `NOMAD_CONFIG`:
+
+```yaml
+plugins:
+  entry_points:
+    exclude: ["nomad_hysprint.parsers:hysprint_parser", "nomad_hysprint.parsers:hysprint_experiment_parser"]
+```
+
+The same overlap applies in the server if both plugins' parsers are enabled in the root `nomad.yaml`.
+
+**nomad-baseclasses tests**: its `nomad.yaml` uses the pre-entry-point plugin format (`plugins.include: 'schemas/baseclasses'`), which nomad-lab 1.4.4+ rejects. Use `plugins: {entry_points: {include: []}}` instead. Its only test (`tests/test_schema.py`) is a leftover from the plugin template and checks a schema that does not exist.
 
 ## NOMAD Plugin Architecture
 
@@ -225,8 +245,31 @@ uv add --package nomad-tfsc-general pandas
 # Add a new submodule plugin
 git submodule add https://github.com/<org>/<repo>.git packages/<name>
 uv add packages/<name>
+```
 
-# Update all submodules
-git pull --recurse-submodules
+### Updating the distro and nomad-FAIR
+
+This repo is a **fork with local commits**. `origin` is `github.com/Dimi-G/nomad-distro-dev` and is usually behind; `upstream` is `FAIRmat-NFDI/nomad-distro-dev`. Use the `/update-distro` skill for the full procedure. The short version:
+
+```bash
+git fetch upstream
+git merge upstream/main
+git submodule update packages/nomad-FAIR   # only nomad-FAIR
 uv sync
 ```
+
+Do not:
+
+- **Run `git pull` or `git pull --recurse-submodules`** in the superproject. Upstream's README advice assumes a plain clone. Here it pulls the stale fork, and with rebase enabled it replays every local commit onto it.
+- **Run a blanket `git submodule update --init --recursive`**. It detaches nomad-baseclasses, nomad-hysprint, nomad-tfsc-general and the perovskite database from the branches they are developed on and resets them to old pinned commits. Update those repos inside their own directories, then commit the new pointers here with `git add packages/<name>`.
+- **Commit large binaries** such as installers to the superproject. Check `git diff --stat origin/main..main` before pushing.
+
+Pushing: `origin` uses HTTPS without stored credentials on this machine, but SSH works. Push with `git push git@github.com:Dimi-G/nomad-distro-dev.git main:main` or switch `origin` to the SSH URL.
+
+### Infrastructure notes (nomad-lab 1.4.4.dev, October 2026)
+
+- **Elasticsearch**: nomad-lab supports ES 7 and 9 via `elastic.version` in `nomad.yaml` (default `'7'`, deprecated). The upstream docker-compose still runs 7.17. Moving to 9 needs a new container and a full reindex.
+- **MongoDB**: the bundled 5.0 container works with the current pymongo driver. `upgrade_mongo.py` is an optional 5→8 upgrade script, not required by NOMAD.
+- **Archives**: new uploads use the v3 archive format. Older archives are still readable; `nomad admin uploads convert` migrates them optionally.
+- **pydantic**: nomad-baseclasses pins `pydantic<2.11`, which holds the whole environment on 2.10 although nomad-lab accepts newer.
+- **Startup warnings** about "unsupported keys" (`MenuItemHistogram: unit`, `Axis: format`) come from the third-party `nomad_luqy_plugin` and are harmless.
