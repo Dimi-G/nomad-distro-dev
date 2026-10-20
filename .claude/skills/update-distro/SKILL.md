@@ -96,7 +96,11 @@ git -C packages/nomad-FAIR diff <old> <new> -- CHANGELOG.md
 git -C packages/nomad-FAIR log --oneline --merges <old>..<new> | grep -iE "break|remov|deprecat|migrat|config|elastic|mongo|pydantic"
 ```
 
-Then grep the HZB plugins' `src/` and their `nomad.yaml` files for anything that was removed.
+Then grep the HZB plugins' `src/` and their `nomad.yaml` files for anything that was removed. Also run the plugin compatibility audit, and follow `/nomad-plugin-modernize` for anything it flags:
+
+```bash
+python3 -I .claude/skills/nomad-plugin-modernize/scripts/audit_plugin.py packages/nomad-baseclasses packages/nomad-hysprint packages/nomad-tfsc-general
+```
 
 ## 6. Restore work and push
 

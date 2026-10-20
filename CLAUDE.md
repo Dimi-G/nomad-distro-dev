@@ -268,8 +268,22 @@ Pushing: `origin` uses HTTPS without stored credentials on this machine, but SSH
 
 ### Infrastructure notes (nomad-lab 1.4.4.dev, October 2026)
 
-- **Elasticsearch**: nomad-lab supports ES 7 and 9 via `elastic.version` in `nomad.yaml` (default `'7'`, deprecated). The upstream docker-compose still runs 7.17. Moving to 9 needs a new container and a full reindex.
-- **MongoDB**: the bundled 5.0 container works with the current pymongo driver. `upgrade_mongo.py` is an optional 5→8 upgrade script, not required by NOMAD.
+- **Elasticsearch**: nomad-lab supports ES 7 and 9 via `elastic.version` in `nomad.yaml` (default `'7'`, deprecated, removed in v2.2.0). This dev distro's docker-compose still runs 7.17, which is fine for development. Production template 2.0.0 uses 9.5.
+- **MongoDB**: the dev container runs 5.0, which the current pymongo driver supports. `upgrade_mongo.py` is FAIRmat's official 5→6→7→8 Oasis migration script (nomad-docs "Migrate to NOMAD 1.4.2"), not needed for dev.
 - **Archives**: new uploads use the v3 archive format. Older archives are still readable; `nomad admin uploads convert` migrates them optionally.
 - **pydantic**: nomad-baseclasses pins `pydantic<2.11`, which holds the whole environment on 2.10 although nomad-lab accepts newer.
 - **Startup warnings** about "unsupported keys" (`MenuItemHistogram: unit`, `Axis: format`) come from the third-party `nomad_luqy_plugin` and are harmless.
+
+## NOMAD 2.0, the new GUI, and HZB Oasis deployments
+
+nomad-lab **2.0.0** and nomad-gui **2.0.0** were released on 2026-10-18, together with nomad-distro-template v2.0.0. This dev distro was still on the 1.4.4.dev264 develop pin, 39 commits behind 2.0.0, as of 2026-10-20.
+
+- **Plugin code**: use the `/nomad-plugin-modernize` skill. Its audit script is `.claude/skills/nomad-plugin-modernize/scripts/audit_plugin.py`.
+  - The biggest issue is the **115 legacy `a_plot` annotations**, 97 of them in baseclasses. The new GUI does not render them. Convert them to `PlotSection` plots before the old GUI is removed in v2.3.0.
+  - Deprecated App fields in the hysprint and tfsc-general apps are the next issue.
+  - For bulk mechanical changes, use the `nomad-plugin-modernizer` agent, one per package.
+- **Oasis deployments** are separate `nomad-hzb/*-image` repos built from FAIRmat's template. Use the `/nomad-oasis-maintain` skill for updates, the 1.4 to 2.0 upgrade, Mongo and ES migrations, backups and security. perseus-image is on 2.0.0. Most others are still on 1.4.2 with ES7 and logtransfer.
+- **URLs differ**:
+  - dev distro: new GUI at `localhost:8000/nomad-oasis/gui/v2/`
+  - Oasis on template 2.0: new GUI at `/`, old GUI at `/gui/`, API at `/backend/api/v1`
+- **baseclasses is in every HZB Oasis image.** Changes there roll out everywhere, so test them here first.
